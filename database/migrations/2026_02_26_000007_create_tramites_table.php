@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+return new class extends Migration 
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('TRAMITES', function (Blueprint $table) {
             $table->id();
             $table->foreignId('area_id')->constrained('AREAS');
-            $table->foreignId('ubicacion_id')->nullable()->constrained('UBICACIONES');
+            $table->foreignId('ubicacion_id')->constrained('UBICACIONES');
             $table->string('nombre_proceso', 255);
             $table->string('dirigido_a', 255)->nullable();
             $table->boolean('requiere_formatos')->default(false);

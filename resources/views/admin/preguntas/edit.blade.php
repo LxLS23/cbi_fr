@@ -38,11 +38,32 @@
                 <div>
                     <label class="block mb-2 text-sm font-semibold text-slate-700">Trámite Actual</label>
                     <select name="tramite_id" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 text-slate-900 text-sm rounded-xl focus:ring-indigo-500 focus:border-indigo-500">
-                        @foreach($tramites as $tramite)
+                        <option value="">Ninguno (Conocimiento General)</option>
+                        @foreach ($tramites as $tramite)
                             <option value="{{ $tramite->id }}" {{ $intencion->tramite_id == $tramite->id ? 'selected' : '' }}>{{ $tramite->nombre_proceso }}</option>
                         @endforeach
                     </select>
                 </div>
+                
+                @if($intencion->tramite_id)
+                <div class="pt-6 border-t border-slate-100">
+                    <label class="block mb-3 text-sm font-semibold text-slate-700">Horarios Vinculados al Trámite</label>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-48 overflow-y-auto p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                        @foreach ($horarios as $h)
+                            <label class="flex items-center p-3 bg-white rounded-xl border border-slate-200 hover:border-indigo-300 transition-colors cursor-pointer group">
+                                <input type="checkbox" name="horario_ids[]" value="{{ $h->id }}" 
+                                    {{ $intencion->tramite->horarios->contains($h->id) ? 'checked' : '' }}
+                                    class="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500">
+                                <div class="ms-3">
+                                    <p class="text-xs font-bold text-slate-700 group-hover:text-indigo-700">{{ $h->descripcion }}</p>
+                                    <p class="text-[10px] text-slate-400">{{ \Carbon\Carbon::parse($h->hora_inicio)->format('H:i') }} - {{ \Carbon\Carbon::parse($h->hora_fin)->format('H:i') }}</p>
+                                </div>
+                            </label>
+                        @endforeach
+                    </div>
+                    <p class="text-[10px] text-slate-400 mt-2 px-2 italic text-center">* Los cambios en horarios afectan a todos los trámites vinculados a este horario.</p>
+                </div>
+                @endif
             </div>
         </div>
 

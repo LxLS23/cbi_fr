@@ -24,7 +24,7 @@
             </tr>
         </thead>
         <tbody class="divide-y divide-slate-100">
-            @forelse($ubicaciones as $ubicacion)
+            @forelse ($ubicaciones as $ubicacion)
             <tr class="hover:bg-slate-50/50 transition-colors">
                 <td class="px-6 py-4">
                     <span class="font-semibold text-slate-700">{{ $ubicacion->ubicacion_fisica }}</span>

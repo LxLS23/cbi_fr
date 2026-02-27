@@ -6,7 +6,7 @@
 <div class="mb-8 flex items-center justify-between">
     <div>
         <h3 class="text-2xl font-bold text-slate-800">Horarios de Atención</h3>
-        <p class="text-slate-500 text-sm">Define las franjas horarias por trámite.</p>
+        <p class="text-slate-500 text-sm">Define las franjas horarias generales para los trámites.</p>
     </div>
     <button data-modal-target="create-modal" data-modal-toggle="create-modal" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-100 transition-all duration-200">
         <svg class="w-5 h-5 me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
@@ -24,7 +24,7 @@
             </tr>
         </thead>
         <tbody class="divide-y divide-slate-100">
-            @forelse($horarios as $horario)
+            @forelse ($horarios as $horario)
             <tr class="hover:bg-slate-50/50 transition-colors">
                 <td class="px-6 py-4">
                     <span class="font-semibold text-slate-700">{{ $horario->descripcion }}</span>

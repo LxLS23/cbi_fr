@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+return new class extends Migration 
 {
     /**
      * Run the migrations.
@@ -40,6 +40,16 @@ return new class extends Migration
             $table->index('tramite_id', 'idx_ct_tramite');
             $table->index('canal_id', 'idx_ct_canal');
         });
+
+        Schema::create('TRAMITE_HORARIO', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('tramite_id')->constrained('TRAMITES')->onDelete('cascade');
+            $table->foreignId('horario_id')->constrained('HORARIOS')->onDelete('cascade');
+
+            $table->unique(['tramite_id', 'horario_id'], 'idx_th_unique');
+            $table->index('tramite_id', 'idx_th_tramite');
+            $table->index('horario_id', 'idx_th_horario');
+        });
     }
 
     /**
@@ -47,6 +57,7 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('TRAMITE_HORARIO');
         Schema::dropIfExists('CANAL_TRAMITE');
         Schema::dropIfExists('MEDIO_TRAMITE');
         Schema::dropIfExists('DOCUMENTOS_TRAMITE');

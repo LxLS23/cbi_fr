@@ -26,7 +26,6 @@ class HorarioController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'tramite_id' => 'nullable|exists:TRAMITES,id',
             'descripcion' => 'required|string|max:255',
             'hora_inicio' => 'required',
             'hora_fin' => 'required',
@@ -40,7 +39,6 @@ class HorarioController extends Controller
     public function update(Request $request, Horario $horario)
     {
         $validated = $request->validate([
-            'tramite_id' => 'nullable|exists:TRAMITES,id',
             'descripcion' => 'required|string|max:255',
             'hora_inicio' => 'required',
             'hora_fin' => 'required',

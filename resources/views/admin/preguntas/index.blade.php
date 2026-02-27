@@ -26,10 +26,14 @@
             </tr>
         </thead>
         <tbody class="divide-y divide-slate-100">
-            @forelse($intentions as $intent)
+            @forelse ($intentions as $intent)
             <tr class="hover:bg-slate-50/50 transition-colors">
                 <td class="px-6 py-4">
-                    <span class="text-sm font-medium text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg">{{ $intent->tramite->nombre_proceso }}</span>
+                    @if($intent->tramite)
+                        <span class="text-sm font-medium text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg">{{ $intent->tramite->nombre_proceso }}</span>
+                    @else
+                        <span class="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded-lg">CONOCIMIENTO GENERAL</span>
+                    @endif
                 </td>
                 <td class="px-6 py-4">
                     <div class="max-w-xs">
@@ -39,7 +43,7 @@
                 </td>
                 <td class="px-6 py-4">
                     <div class="flex flex-wrap gap-1">
-                        @foreach($intent->preguntas as $pregunta)
+                        @foreach ($intent->preguntas as $pregunta)
                             <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-medium bg-slate-100 text-slate-600 border border-slate-200">
                                 {{ $pregunta->pregunta }}
                             </span>

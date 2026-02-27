@@ -25,7 +25,7 @@
             </tr>
         </thead>
         <tbody class="divide-y divide-slate-100">
-            @forelse($areas as $area)
+            @forelse ($areas as $area)
             <tr class="hover:bg-slate-50/50 transition-colors">
                 <td class="px-6 py-4">
                     <span class="font-semibold text-slate-700">{{ $area->nombre }}</span>

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Horario extends Model
 {
@@ -16,17 +17,16 @@ class Horario extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'tramite_id',
         'descripcion',
         'hora_inicio',
         'hora_fin',
     ];
 
     /**
-     * Get the tramite that owns the horario.
+     * The tramites that belong to the horario.
      */
-    public function tramite(): BelongsTo
+    public function tramites(): BelongsToMany
     {
-        return $this->belongsTo(Tramite::class, 'tramite_id');
+        return $this->belongsToMany(Tramite::class , 'TRAMITE_HORARIO', 'horario_id', 'tramite_id');
     }
 }

@@ -27,7 +27,8 @@ class PreguntaFrecuenteController extends Controller
         TramiteService $tramiteService,
         IntencionService $intencionService,
         PreguntaChatService $preguntaService
-    ) {
+        )
+    {
         $this->tramiteService = $tramiteService;
         $this->intencionService = $intencionService;
         $this->preguntaService = $preguntaService;
@@ -47,15 +48,13 @@ class PreguntaFrecuenteController extends Controller
         $canales = CanalContacto::all();
         $documentos = Documento::all();
         $medios = MedioDifusion::all();
+        $horarios = Horario::all();
 
-        return view('admin.preguntas.create', compact('areas', 'ubicaciones', 'tramites', 'canales', 'documentos', 'medios'));
+        return view('admin.preguntas.create', compact('areas', 'ubicaciones', 'tramites', 'canales', 'documentos', 'medios', 'horarios'));
     }
 
     public function store(Request $request)
     {
-        // This will be a complex validation and storage logic
-        // For now, let's define the basic structure
-        
         DB::beginTransaction();
         try {
             // 1. Handle Tramite (Select existing or Create)
@@ -83,6 +82,11 @@ class PreguntaFrecuenteController extends Controller
                     $ubicacionId = $ubicacion->id;
                 }
 
+                // Validation: Ubicacion and Area are required for a new Tramite
+                if (!$areaId || !$ubicacionId) {
+                    throw new \Exception('El Área y la Ubicación son obligatorias para crear un nuevo trámite.');
+                }
+
                 $tramite = Tramite::create([
                     'nombre_proceso' => $tramiteData['new_tramite_nombre'],
                     'area_id' => $areaId,
@@ -91,15 +95,15 @@ class PreguntaFrecuenteController extends Controller
                 $tramiteId = $tramite->id;
             }
 
-            // 2. Create Intencion
+            // 2. Create Intencion (tramite_id is now optional)
             $intencionData = $request->validate([
                 'titulo' => 'required|string|max:150',
                 'respuesta_sugerida' => 'required|string',
                 'activo' => 'boolean',
             ]);
-            
+
             $intencion = Intencion::create([
-                'tramite_id' => $tramiteId,
+                'tramite_id' => $tramiteId ?: null,
                 'titulo' => $intencionData['titulo'],
                 'respuesta_sugerida' => $intencionData['respuesta_sugerida'],
                 'activo' => $request->has('activo'),
@@ -119,39 +123,50 @@ class PreguntaFrecuenteController extends Controller
             }
 
             // 4. Handle Conditional Base Data
-            if ($request->has('show_horarios_check') && $request->filled('horario_desc')) {
-                Horario::create([
-                    'tramite_id' => $tramiteId,
-                    'descripcion' => $request->horario_desc,
-                    'hora_inicio' => $request->horario_inicio,
-                    'hora_fin' => $request->horario_fin,
-                ]);
-            }
-
-            if ($request->has('show_canales_check') && $request->filled('canal_id')) {
+            if ($tramiteId) {
                 $tramite = Tramite::find($tramiteId);
-                $tramite->canales()->syncWithoutDetaching($request->canal_id);
-            }
 
-            if ($request->has('show_documentos_check') && $request->filled('documento_id')) {
-                $tramite = Tramite::find($tramiteId);
-                $tramite->documentos()->syncWithoutDetaching($request->documento_id);
-            }
+                // Many-to-Many schedules
+                if ($request->has('show_horarios_check')) {
+                    // Sync existing schedules if any
+                    if ($request->has('horario_ids')) {
+                        $tramite->horarios()->syncWithoutDetaching($request->horario_ids);
+                    }
 
-            // Sync Area/Ubicacion if explicitly checked in Section 4 for an existing tramite
-            if (!$request->create_new_tramite) {
-                $tramite = Tramite::find($tramiteId);
-                if ($request->has('show_area_check') && $request->filled('update_area_id')) {
-                    $tramite->update(['area_id' => $request->update_area_id]);
+                    // Create and attach new schedule if provided
+                    if ($request->filled('horario_desc')) {
+                        $horario = Horario::create([
+                            'descripcion' => $request->horario_desc,
+                            'hora_inicio' => $request->horario_inicio,
+                            'hora_fin' => $request->horario_fin,
+                        ]);
+                        $tramite->horarios()->attach($horario->id);
+                    }
                 }
-                if ($request->has('show_ubicacion_check') && $request->filled('update_ubicacion_id')) {
-                    $tramite->update(['ubicacion_id' => $request->update_ubicacion_id]);
+
+                if ($request->has('show_canales_check') && $request->filled('canal_id')) {
+                    $tramite->canales()->syncWithoutDetaching($request->canal_id);
+                }
+
+                if ($request->has('show_documentos_check') && $request->filled('documento_id')) {
+                    $tramite->documentos()->syncWithoutDetaching($request->documento_id);
+                }
+
+                // Sync Area/Ubicacion if explicitly checked in Section 4 for an existing tramite
+                if (!$request->create_new_tramite) {
+                    if ($request->has('show_area_check') && $request->filled('update_area_id')) {
+                        $tramite->update(['area_id' => $request->update_area_id]);
+                    }
+                    if ($request->has('show_ubicacion_check') && $request->filled('update_ubicacion_id')) {
+                        $tramite->update(['ubicacion_id' => $request->update_ubicacion_id]);
+                    }
                 }
             }
 
             DB::commit();
             return redirect()->route('admin.preguntas.index')->with('success', 'Pregunta e Intención registradas correctamente.');
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Error in PreguntaFrecuenteController@store: ' . $e->getMessage());
             return back()->with('error', 'Error al registrar: ' . $e->getMessage())->withInput();
@@ -161,28 +176,29 @@ class PreguntaFrecuenteController extends Controller
     public function edit(Intencion $pregunta)
     {
         // $pregunta is actually an Intencion model because of resource routing binding
-        $intencion = $pregunta->load(['tramite', 'preguntas']);
+        $intencion = $pregunta->load(['tramite.horarios', 'preguntas']);
         $areas = Area::all();
         $ubicaciones = Ubicacion::all();
         $tramites = Tramite::all();
         $canales = CanalContacto::all();
         $documentos = Documento::all();
         $medios = MedioDifusion::all();
+        $horarios = Horario::all();
 
-        return view('admin.preguntas.edit', compact('intencion', 'areas', 'ubicaciones', 'tramites', 'canales', 'documentos', 'medios'));
+        return view('admin.preguntas.edit', compact('intencion', 'areas', 'ubicaciones', 'tramites', 'canales', 'documentos', 'medios', 'horarios'));
     }
 
     public function update(Request $request, Intencion $pregunta)
     {
         $intencion = $pregunta;
-        
+
         DB::beginTransaction();
         try {
             // 1. Update Intencion
             $intencionData = $request->validate([
                 'titulo' => 'required|string|max:150',
                 'respuesta_sugerida' => 'required|string',
-                'tramite_id' => 'required|exists:TRAMITES,id',
+                'tramite_id' => 'nullable|exists:TRAMITES,id',
             ]);
 
             $intencion->update([
@@ -191,6 +207,11 @@ class PreguntaFrecuenteController extends Controller
                 'tramite_id' => $intencionData['tramite_id'],
                 'activo' => $request->has('activo'),
             ]);
+
+            // Handle schedule synchronization if a tramite is linked
+            if ($intencion->tramite_id && $request->has('horario_ids')) {
+                $intencion->tramite->horarios()->sync($request->horario_ids);
+            }
 
             // 2. Update Questions (Simple logic: delete old ones and create new ones or sync)
             $intencion->preguntas()->delete();
@@ -208,7 +229,8 @@ class PreguntaFrecuenteController extends Controller
 
             DB::commit();
             return redirect()->route('admin.preguntas.index')->with('success', 'Pregunta e Intención actualizadas correctamente.');
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Error al actualizar: ' . $e->getMessage())->withInput();
         }

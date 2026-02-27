@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+return new class extends Migration 
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('INTENCIONES', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('tramite_id')->constrained('TRAMITES')->onDelete('cascade');
+            $table->foreignId('tramite_id')->nullable()->constrained('TRAMITES')->onDelete('cascade');
             $table->string('titulo', 150);
             $table->text('respuesta_sugerida');
             $table->boolean('activo')->default(true);

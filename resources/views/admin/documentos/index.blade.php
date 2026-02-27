@@ -24,7 +24,7 @@
             </tr>
         </thead>
         <tbody class="divide-y divide-slate-100">
-            @forelse($documentos as $documento)
+            @forelse ($documentos as $documento)
             <tr class="hover:bg-slate-50/50 transition-colors">
                 <td class="px-6 py-4">
                     <div class="flex items-center">

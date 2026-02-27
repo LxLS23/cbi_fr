@@ -8,6 +8,8 @@
     showHorarios: false, 
     showArea: false,
     showUbicacion: false,
+    showCanales: false,
+    showDocumentos: false,
     questions: [{ texto: '', keywords: '' }]
 }">
     <div class="mb-8">
@@ -36,8 +38,8 @@
                     <label class="block mb-2 text-sm font-semibold text-slate-700">Seleccionar Trámite Existente</label>
                     <div class="flex gap-4">
                         <select name="tramite_id" class="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 text-slate-900 text-sm rounded-xl focus:ring-indigo-500 focus:border-indigo-500">
-                            <option value="">Selecciona un trámite...</option>
-                            @foreach($tramites as $tramite)
+                            <option value="">Ninguno (Conocimiento General)</option>
+                            @foreach ($tramites as $tramite)
                                 <option value="{{ $tramite->id }}">{{ $tramite->nombre_proceso }}</option>
                             @endforeach
                         </select>
@@ -49,21 +51,22 @@
 
                 <div x-show="createNewTramite" x-transition class="bg-indigo-50/50 p-6 rounded-2xl border border-indigo-100 space-y-4">
                     <div class="flex justify-between items-center">
-                        <h5 class="text-sm font-bold text-indigo-800 uppercase tracking-wider">Nuevo Trámite</h5>
+                        <h5 class="text-sm font-bold text-indigo-800 uppercase tracking-wider">Nuevo Trámite <span class="text-rose-500">*</span></h5>
                         <button type="button" @click="createNewTramite = false" class="text-indigo-400 hover:text-indigo-600 text-xs font-bold">Cancelar</button>
                     </div>
                     <input type="hidden" name="create_new_tramite" :value="createNewTramite ? 1 : 0">
                     <div>
-                        <label class="block mb-2 text-xs font-bold text-slate-500 uppercase">Nombre del Proceso</label>
-                        <input type="text" name="new_tramite_nombre" placeholder="Ej. Inscripción a Licenciatura" class="w-full px-4 py-3 bg-white border border-slate-200 text-slate-900 text-sm rounded-xl focus:ring-indigo-500 focus:border-indigo-500">
+                        <label class="block mb-2 text-xs font-bold text-slate-500 uppercase">Nombre del Proceso <span class="text-rose-500">*</span></label>
+                        <input type="text" name="new_tramite_nombre" placeholder="Ej. Inscripción a Licenciatura" class="w-full px-4 py-3 bg-white border border-slate-200 text-slate-900 text-sm rounded-xl focus:ring-indigo-500 focus:border-indigo-500" :required="createNewTramite">
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6" x-data="{ createNewArea: false, createNewUbicacion: false }">
                         <div>
-                            <label class="block mb-2 text-xs font-bold text-slate-500 uppercase">Área Responsable</label>
+                            <label class="block mb-2 text-xs font-bold text-slate-500 uppercase">Área Responsable <span class="text-rose-500">*</span></label>
                             <div x-show="!createNewArea">
                                 <div class="flex gap-2">
                                     <select name="new_tramite_area_id" class="flex-1 px-4 py-3 bg-white border border-slate-200 text-slate-900 text-sm rounded-xl">
-                                        @foreach($areas as $area)
+                                        <option value="">Selecciona área...</option>
+                                        @foreach ($areas as $area)
                                             <option value="{{ $area->id }}">{{ $area->nombre }}</option>
                                         @endforeach
                                     </select>
@@ -76,12 +79,12 @@
                             </div>
                         </div>
                         <div>
-                            <label class="block mb-2 text-xs font-bold text-slate-500 uppercase">Ubicación Física (Piso/Modulo)</label>
+                            <label class="block mb-2 text-xs font-bold text-slate-500 uppercase">Ubicación Física <span class="text-rose-500">*</span></label>
                             <div x-show="!createNewUbicacion">
                                 <div class="flex gap-2">
                                     <select name="new_tramite_ubicacion_id" class="flex-1 px-4 py-3 bg-white border border-slate-200 text-slate-900 text-sm rounded-xl">
-                                        <option value="">Ninguna</option>
-                                        @foreach($ubicaciones as $ubicacion)
+                                        <option value="">Selecciona ubicación...</option>
+                                        @foreach ($ubicaciones as $ubicacion)
                                             <option value="{{ $ubicacion->id }}">{{ $ubicacion->ubicacion_fisica }} - {{ $ubicacion->referencia_piso_modulo }}</option>
                                         @endforeach
                                     </select>
@@ -116,6 +119,10 @@
                 <div>
                     <label class="block mb-2 text-sm font-semibold text-slate-700">Respuesta Sugerida (Chatbot)</label>
                     <textarea name="respuesta_sugerida" rows="5" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 text-slate-900 text-sm rounded-xl focus:ring-indigo-500 focus:border-indigo-500" placeholder="Escribe aquí la respuesta que el chatbot dará al usuario..." required></textarea>
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" name="activo" id="activo" class="w-5 h-5 text-indigo-600 border-slate-300 rounded" checked>
+                    <label for="activo" class="ms-3 text-sm font-bold text-slate-700">Activo</label>
                 </div>
             </div>
         </div>
@@ -184,15 +191,34 @@
                     <span class="ms-3 text-sm font-semibold text-slate-700">Área Específica</span>
                 </label>
             </div>
+        </div>
 
-            <!-- Dynamic Sections -->
-            <div class="space-y-6">
-                <!-- Horarios Section -->
-                <div x-show="showHorarios" x-transition class="p-6 bg-slate-50 rounded-3xl border border-slate-200">
-                    <h5 class="text-sm font-bold text-slate-800 mb-4 flex items-center">
-                        <svg class="w-4 h-4 me-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        Registro de Horario para el Trámite
-                    </h5>
+        <!-- Dynamic Sections -->
+        <div class="space-y-6">
+            <!-- Horarios Section -->
+            <div x-show="showHorarios" x-transition class="p-6 bg-slate-50 rounded-3xl border border-slate-200">
+                <h5 class="text-sm font-bold text-slate-800 mb-4 flex items-center">
+                    <svg class="w-4 h-4 me-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Asignar Horarios al Trámite
+                </h5>
+                
+                <div class="mb-6">
+                    <label class="block mb-3 text-xs font-bold text-slate-500 uppercase tracking-tight">Horarios Existentes</label>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-48 overflow-y-auto p-2 bg-white rounded-xl border border-slate-100">
+                        @foreach ($horarios as $h)
+                            <label class="flex items-center p-3 bg-slate-50 rounded-lg border border-slate-100 hover:bg-indigo-50 transition-colors cursor-pointer group">
+                                <input type="checkbox" name="horario_ids[]" value="{{ $h->id }}" class="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500">
+                                <div class="ms-3">
+                                    <p class="text-xs font-bold text-slate-700 group-hover:text-indigo-700">{{ $h->descripcion }}</p>
+                                    <p class="text-[10px] text-slate-400">{{ \Carbon\Carbon::parse($h->hora_inicio)->format('H:i') }} - {{ \Carbon\Carbon::parse($h->hora_fin)->format('H:i') }}</p>
+                                </div>
+                            </label>
+                        @endforeach
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-slate-200">
+                    <h6 class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-4">O Registrar Nuevo Horario</h6>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="md:col-span-1">
                             <label class="block mb-2 text-xs font-bold text-slate-500 uppercase">Descripción</label>
@@ -208,6 +234,7 @@
                         </div>
                     </div>
                 </div>
+            </div>
 
                 <!-- Canales Section -->
                 <div x-show="showCanales" x-transition class="p-6 bg-slate-50 rounded-3xl border border-slate-200">
@@ -217,7 +244,7 @@
                     </h5>
                     <select name="canal_id" class="w-full px-4 py-2 bg-white border border-slate-200 text-sm rounded-xl">
                         <option value="">Selecciona un canal...</option>
-                        @foreach($canales as $canal)
+                        @foreach ($canales as $canal)
                             <option value="{{ $canal->id }}">{{ $canal->tipo }}: {{ $canal->valor }}</option>
                         @endforeach
                     </select>
@@ -231,7 +258,7 @@
                     </h5>
                     <select name="documento_id" class="w-full px-4 py-2 bg-white border border-slate-200 text-sm rounded-xl">
                         <option value="">Selecciona un documento...</option>
-                        @foreach($documentos as $doc)
+                        @foreach ($documentos as $doc)
                             <option value="{{ $doc->id }}">{{ $doc->nombre }}</option>
                         @endforeach
                     </select>
@@ -245,7 +272,7 @@
                     </h5>
                     <select name="update_area_id" class="w-full px-4 py-2 bg-white border border-slate-200 text-sm rounded-xl">
                         <option value="">Selecciona un área...</option>
-                        @foreach($areas as $area)
+                        @foreach ($areas as $area)
                             <option value="{{ $area->id }}">{{ $area->nombre }}</option>
                         @endforeach
                     </select>
@@ -259,7 +286,7 @@
                     </h5>
                     <select name="update_ubicacion_id" class="w-full px-4 py-2 bg-white border border-slate-200 text-sm rounded-xl">
                         <option value="">Selecciona una ubicación...</option>
-                        @foreach($ubicaciones as $ubicacion)
+                        @foreach ($ubicaciones as $ubicacion)
                             <option value="{{ $ubicacion->id }}">{{ $ubicacion->ubicacion_fisica }}</option>
                         @endforeach
                     </select>

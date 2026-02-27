@@ -34,7 +34,7 @@ class Tramite extends Model
      */
     public function area(): BelongsTo
     {
-        return $this->belongsTo(Area::class, 'area_id');
+        return $this->belongsTo(Area::class , 'area_id');
     }
 
     /**
@@ -42,7 +42,7 @@ class Tramite extends Model
      */
     public function ubicacion(): BelongsTo
     {
-        return $this->belongsTo(Ubicacion::class, 'ubicacion_id');
+        return $this->belongsTo(Ubicacion::class , 'ubicacion_id');
     }
 
     /**
@@ -50,7 +50,7 @@ class Tramite extends Model
      */
     public function documentos(): BelongsToMany
     {
-        return $this->belongsToMany(Documento::class, 'DOCUMENTOS_TRAMITE', 'tramite_id', 'documento_id');
+        return $this->belongsToMany(Documento::class , 'DOCUMENTOS_TRAMITE', 'tramite_id', 'documento_id');
     }
 
     /**
@@ -58,7 +58,7 @@ class Tramite extends Model
      */
     public function medios(): BelongsToMany
     {
-        return $this->belongsToMany(MedioDifusion::class, 'MEDIO_TRAMITE', 'tramite_id', 'medio_id');
+        return $this->belongsToMany(MedioDifusion::class , 'MEDIO_TRAMITE', 'tramite_id', 'medio_id');
     }
 
     /**
@@ -66,7 +66,7 @@ class Tramite extends Model
      */
     public function canales(): BelongsToMany
     {
-        return $this->belongsToMany(CanalContacto::class, 'CANAL_TRAMITE', 'tramite_id', 'canal_id');
+        return $this->belongsToMany(CanalContacto::class , 'CANAL_TRAMITE', 'tramite_id', 'canal_id');
     }
 
     /**
@@ -74,15 +74,15 @@ class Tramite extends Model
      */
     public function intenciones(): HasMany
     {
-        return $this->hasMany(Intencion::class, 'tramite_id');
+        return $this->hasMany(Intencion::class , 'tramite_id');
     }
 
     /**
      * Get the horarios for the tramite.
      */
-    public function horarios(): HasMany
+    public function horarios(): BelongsToMany
     {
-        return $this->hasMany(Horario::class, 'tramite_id');
+        return $this->belongsToMany(Horario::class , 'TRAMITE_HORARIO', 'tramite_id', 'horario_id');
     }
 
     /**
@@ -90,7 +90,7 @@ class Tramite extends Model
      */
     public function contextos(): HasMany
     {
-        return $this->hasMany(ChatContexto::class, 'tramite_id');
+        return $this->hasMany(ChatContexto::class , 'tramite_id');
     }
 
     /**
@@ -98,6 +98,6 @@ class Tramite extends Model
      */
     public function consultas(): HasMany
     {
-        return $this->hasMany(ChatConsulta::class, 'tramite_id');
+        return $this->hasMany(ChatConsulta::class , 'tramite_id');
     }
 }
